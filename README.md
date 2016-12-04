@@ -42,13 +42,14 @@ Add the backend and configuration to your statsd config file (`appinsights.js`):
             aiRoleName: "MyFrontEnd",  // [Optional] Add this role name context tag to every metric
             aiRoleInstance: "VM5",  // [Optional] Add this role instance context tag to every metric
             aiTrackStatsDMetrics: true,  // [Optional] Send StatsD internal metrics to Application Insights
+            compressedProperties : true // [Optional] To indicate if you are sending extra properties encoded or not.
         },
         {
             aiInstrumentationKey: "<Application Insights Instrumentation Key from https://portal.azure.com>",  // [Required] Your instrumentation key
             aiPrefix: "myapp",  // [Optional] Send only metrics with this prefix
             aiRoleName: "MyFrontEnd",  // [Optional] Add this role name context tag to every metric
             aiRoleInstance: "VM7",  // [Optional] Add this role instance context tag to every metric
-            aiTrackStatsDMetrics: true,  // [Optional] Send StatsD internal metrics to Application Insights
+            aiTrackStatsDMetrics: true  // [Optional] Send StatsD internal metrics to Application Insights
         }
     ]  
 }

@@ -14,15 +14,17 @@ gulp.task("lint", function() {
         "lib/appinsights.ts",
         "tests/appinsights.test.ts"
     ])
-    .pipe(tslint())
-    .pipe(tslint.report("verbose"));
+    .pipe(tslint({
+    formatter: "verbose"
+    }))
+    .pipe(tslint.report())
 });
 
 const tsProject = tsc.createProject("tsconfig.json");
 
 gulp.task('sloc', function(){
     return tsProject.src()
-        .pipe(tsc(tsProject))
+        .pipe(tsProject())
         .js
         .pipe(sloc());
 });
@@ -30,7 +32,7 @@ gulp.task('sloc', function(){
 gulp.task("build", ["lint"], function() {
     const tsResult = tsProject.src()
         .pipe(sourcemaps.init())
-        .pipe(tsc(tsProject));
+        .pipe(tsProject());
     
     return tsResult.js
         .pipe(sourcemaps.write("./", { sourceRoot: __dirname }))

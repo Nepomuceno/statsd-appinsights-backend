@@ -4,15 +4,13 @@
 
 console.log("[aibackend] Starting...");
 
-import events = require("events");
-import util = require("util");
-import {AppInsightsConfig} from './appinsightsconfig';
-
-import * as ai from 'applicationinsights';
+import {AppInsightsConfig} from "./appinsightsconfig";
+import * as events from "events";
+import * as util from "util";
 
 class AppInsightsBackend {
 
-    protected config : AppInsightsConfig;
+    protected config: AppInsightsConfig;
     
     public static init = function(startupTime: number, config: AppInsightsConfig, events: events.EventEmitter) {
         const instance = new AppInsightsBackend(config);
@@ -32,15 +30,15 @@ class AppInsightsBackend {
     
     protected onFlush(timestamp: string, metrics: any) {
         console.log("[aibackend] OnFlush called");
-        for(let appInstance of this.config.appinsights)
+        for (let appInstance of this.config.appinsights)
         {
             // Process counters
             let countersTracked = 0;
             for (const counterKey in metrics.counters) {
-                if (!this.shouldProcess(counterKey,appInstance.prefix,appInstance.trackStatsDMetrics)) {
+                if (!this.shouldProcess(counterKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedCounterKey = this.parseKey(counterKey,appInstance.prefix, appInstance.aiClient);
+                const parsedCounterKey = this.parseKey(counterKey, appInstance.prefix, appInstance.aiClient);
                 const counter = metrics.counters[counterKey];
                 
                 appInstance.aiClient.trackMetric(parsedCounterKey.metricname, counter, null, null, null, null, parsedCounterKey.properties);
@@ -51,10 +49,10 @@ class AppInsightsBackend {
             // Process timer data
             let timerDataTracked = 0;
             for (const timerKey in metrics.timer_data) {
-                if (!this.shouldProcess(timerKey,appInstance.prefix,appInstance.trackStatsDMetrics)) {
+                if (!this.shouldProcess(timerKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedTimerKey = this.parseKey(timerKey,appInstance.prefix, appInstance.aiClient);
+                const parsedTimerKey = this.parseKey(timerKey, appInstance.prefix, appInstance.aiClient);
                 const timer = metrics.timer_data[timerKey];
                 
                 appInstance.aiClient.trackMetric(
@@ -72,10 +70,10 @@ class AppInsightsBackend {
             // Process gauges
             let gaugesTracked = 0;
             for (const gaugeKey in metrics.gauges) {
-                if (!this.shouldProcess(gaugeKey,appInstance.prefix,appInstance.trackStatsDMetrics)) {
+                if (!this.shouldProcess(gaugeKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedGaugeKey = this.parseKey(gaugeKey,appInstance.prefix, appInstance.aiClient);
+                const parsedGaugeKey = this.parseKey(gaugeKey, appInstance.prefix, appInstance.aiClient);
                 const gauge = metrics.gauges[gaugeKey];
                 
                 appInstance.aiClient.trackMetric(parsedGaugeKey.metricname, gauge, null, null, null, null, parsedGaugeKey.properties);
@@ -89,7 +87,7 @@ class AppInsightsBackend {
         return true;
     }
     
-    protected shouldProcess(key: string,prefix:string, trackStatsDMetrics: boolean): boolean  {
+    protected shouldProcess(key: string, prefix: string, trackStatsDMetrics: boolean): boolean  {
         if (!trackStatsDMetrics && key.indexOf("statsd.") === 0) {
             return false;
         }
@@ -101,7 +99,7 @@ class AppInsightsBackend {
         return true;
     }
     
-    protected parseKey(key: string, prefix: string,aiClient: Client) {
+    protected parseKey(key: string, prefix: string, aiClient: Client) {
         // Remove the prefix if it is set
         if (prefix) {
             if (key.indexOf(prefix) === 0) {

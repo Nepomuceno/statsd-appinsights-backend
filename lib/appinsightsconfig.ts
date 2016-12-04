@@ -1,4 +1,4 @@
-import * as ai from 'applicationinsights';
+import * as ai from "applicationinsights";
 
 export class AppInsightsInstance {
     public prefix: string;
@@ -29,6 +29,7 @@ export class AppInsightsInstance {
 
 export class AppInsightsConfig {
     public appinsights : AppInsightsInstance[];
+    public compressedProperties : boolean;
     
     public init(){
         for(let instance of this.appinsights)

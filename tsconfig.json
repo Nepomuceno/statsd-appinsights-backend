@@ -1,16 +1,16 @@
 {
     "compilerOptions": {
-        "baseUrl": "./node_modules",
+        "moduleResolution": "node",
         "target": "es5",
-        "module": "commonjs",
+        "baseUrl": "./node_modules",
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": true
     },
     "files": [
+        "lib/appinsightsconfig.ts",
         "lib/appinsights.ts",
-        "tests/appinsights.test.ts",
-        "typings/index.d.ts"
+        "tests/appinsights.test.ts"
     ]
 }
