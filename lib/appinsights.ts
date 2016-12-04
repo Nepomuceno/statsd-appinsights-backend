@@ -110,7 +110,7 @@ class AppInsightsBackend {
         }
 
         // Get metric name
-        let contents = 
+        const endOfNameIndex = key.indexOf("__");
         const metricName = endOfNameIndex > 0 ? key.substring(0, endOfNameIndex) : key;
 
         // Get properties
