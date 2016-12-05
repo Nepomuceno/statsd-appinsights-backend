@@ -9,7 +9,7 @@ import * as events from "events";
 import * as util from "util";
 
 class AppInsightsBackend {
-
+    
     protected config: AppInsightsConfig;
     
     public static init = function(startupTime: number, config: AppInsightsConfig, events: events.EventEmitter) {
@@ -38,7 +38,7 @@ class AppInsightsBackend {
                 if (!this.shouldProcess(counterKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                let parsedCounterKey = undefined;
+                let parsedCounterKey : { metricname: any, properties:any} = undefined;
                 if(!appInstance.compressedProperties)
                 {
                     parsedCounterKey = this.parseKeyUncompressed(counterKey, appInstance.prefix, appInstance.aiClient);
@@ -60,9 +60,13 @@ class AppInsightsBackend {
                     continue;
                 }
 
-                let parsedTimerKey = undefined;
-                if(appInstance.)
-                parsedTimerKey = this.parseKeyCompressed(timerKey, appInstance.prefix, appInstance.aiClient);
+                let parsedTimerKey : { metricname: any, properties:any} = undefined;
+                if(!appInstance.compressedProperties)
+                {
+                    parsedTimerKey = this.parseKeyUncompressed(timerKey, appInstance.prefix, appInstance.aiClient);
+                } else {
+                    parsedTimerKey = this.parseKeyCompressed(timerKey, appInstance.prefix, appInstance.aiClient);
+                }
                 const timer = metrics.timer_data[timerKey];
                 
                 appInstance.aiClient.trackMetric(
@@ -83,7 +87,14 @@ class AppInsightsBackend {
                 if (!this.shouldProcess(gaugeKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedGaugeKey = this.parseKey(gaugeKey, appInstance.prefix, appInstance.aiClient);
+                
+                let parsedGaugeKey : { metricname: any, properties:any} = undefined;
+                if(!appInstance.compressedProperties)
+                {
+                    parsedGaugeKey = this.parseKeyUncompressed(gaugeKey, appInstance.prefix, appInstance.aiClient);
+                } else {
+                    parsedGaugeKey = this.parseKeyCompressed(gaugeKey, appInstance.prefix, appInstance.aiClient);
+                }
                 const gauge = metrics.gauges[gaugeKey];
                 
                 appInstance.aiClient.trackMetric(parsedGaugeKey.metricname, gauge, null, null, null, null, parsedGaugeKey.properties);
@@ -145,26 +156,17 @@ class AppInsightsBackend {
                 key = key.substr(prefix.length);
             }
         }
+        
+        let [metricName, ...metricprops] = key.split(',');
+        let properties = metricprops.reduce((obj: any, item:string) => {
+            try {
+                obj[item.split('=')[0]] = item.split('=')[1];
+            } catch (error) {
+                aiClient.trackException(new Error("Failed to parse properties string from key '" + key + "': " + util.inspect(error)));
+            }
+            return obj;
+        }, {});
 
-        // Get metric name
-        const endOfNameIndex = key.indexOf(",");
-        const metricName = endOfNameIndex > 0 ? key.substring(0, endOfNameIndex) : key;
-
-        // Get properties
-        let properties: { [key: string]: string };
-        if (endOfNameIndex > 0) {
-            const propertiesString = key.substring(endOfNameIndex + 2);
-            let propertiesArray = propertiesString.split(",")
-            propertiesArray.forEach(property => {
-                try {
-                    let propertyArray = property.split("=")
-                    properties[propertyArray[0]] = propertyArray[1]
-                } catch (error) {
-                    aiClient.trackException(new Error("Failed to parse properties string from key '" + key + "': " + util.inspect(error)));
-                }
-                
-            });
-        }
         return {
             metricname : metricName,
             properties: properties,
