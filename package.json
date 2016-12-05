@@ -27,18 +27,15 @@
     "lib/appinsights.js"
   ],
   "dependencies": {
-    "@types/applicationinsights": "^0.15.33",
     "applicationinsights": "^0.17.0"
   },
   "devDependencies": {
+    "@types/applicationinsights": "^0.15.33",
     "@types/assert": "^0.0.31",
-    "@types/es6-promise": "0.0.32",
     "@types/gulp": "^3.8.32",
     "@types/gulp-sourcemaps": "0.0.29",
     "@types/mocha": "^2.2.33",
     "@types/node": "0.0.2",
-    "@types/orchestrator": "0.0.30",
-    "@types/q": "0.0.32",
     "@types/sinon": "^1.16.32",
     "assert": "1.4.1",
     "gulp": "3.9.1",

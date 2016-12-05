@@ -38,7 +38,14 @@ class AppInsightsBackend {
                 if (!this.shouldProcess(counterKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedCounterKey = this.parseKey(counterKey, appInstance.prefix, appInstance.aiClient);
+                let parsedCounterKey = undefined;
+                if(!appInstance.compressedProperties)
+                {
+                    parsedCounterKey = this.parseKeyUncompressed(counterKey, appInstance.prefix, appInstance.aiClient);
+                } else {
+                    parsedCounterKey = this.parseKeyCompressed(counterKey, appInstance.prefix, appInstance.aiClient);
+                }
+                
                 const counter = metrics.counters[counterKey];
                 
                 appInstance.aiClient.trackMetric(parsedCounterKey.metricname, counter, null, null, null, null, parsedCounterKey.properties);
@@ -52,7 +59,10 @@ class AppInsightsBackend {
                 if (!this.shouldProcess(timerKey, appInstance.prefix, appInstance.trackStatsDMetrics)) {
                     continue;
                 }
-                const parsedTimerKey = this.parseKey(timerKey, appInstance.prefix, appInstance.aiClient);
+
+                let parsedTimerKey = undefined;
+                if(appInstance.)
+                parsedTimerKey = this.parseKeyCompressed(timerKey, appInstance.prefix, appInstance.aiClient);
                 const timer = metrics.timer_data[timerKey];
                 
                 appInstance.aiClient.trackMetric(
@@ -91,15 +101,13 @@ class AppInsightsBackend {
         if (!trackStatsDMetrics && key.indexOf("statsd.") === 0) {
             return false;
         }
-        
         if (prefix !== undefined && prefix !== null) {
             return key.indexOf(prefix) === 0;
         }
-        
         return true;
     }
     
-    protected parseKey(key: string, prefix: string, aiClient: Client) {
+    protected parseKeyCompressed(key: string, prefix: string, aiClient: Client) {
         // Remove the prefix if it is set
         if (prefix) {
             if (key.indexOf(prefix) === 0) {
@@ -124,6 +132,39 @@ class AppInsightsBackend {
             }
         }
 
+        return {
+            metricname : metricName,
+            properties: properties,
+        };
+    }
+
+    protected parseKeyUncompressed(key: string, prefix: string, aiClient: Client) {
+        // Remove the prefix if it is set
+        if (prefix) {
+            if (key.indexOf(prefix) === 0) {
+                key = key.substr(prefix.length);
+            }
+        }
+
+        // Get metric name
+        const endOfNameIndex = key.indexOf(",");
+        const metricName = endOfNameIndex > 0 ? key.substring(0, endOfNameIndex) : key;
+
+        // Get properties
+        let properties: { [key: string]: string };
+        if (endOfNameIndex > 0) {
+            const propertiesString = key.substring(endOfNameIndex + 2);
+            let propertiesArray = propertiesString.split(",")
+            propertiesArray.forEach(property => {
+                try {
+                    let propertyArray = property.split("=")
+                    properties[propertyArray[0]] = propertyArray[1]
+                } catch (error) {
+                    aiClient.trackException(new Error("Failed to parse properties string from key '" + key + "': " + util.inspect(error)));
+                }
+                
+            });
+        }
         return {
             metricname : metricName,
             properties: properties,

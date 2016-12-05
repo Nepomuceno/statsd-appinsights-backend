@@ -6,7 +6,9 @@ export class AppInsightsInstance {
     public roleInstance: string;
     public instrumentationKey: string;
     public trackStatsDMetrics: boolean = false;
+    public compressedProperties: boolean = true;
     public initialized: boolean = false;
+    
     protected appInsights: ApplicationInsights;
 
     public init() {
